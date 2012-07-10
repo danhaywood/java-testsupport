@@ -1,6 +1,19 @@
+*~
+*.swp
 *.class
+target/
+target-ide/
+logs/
+.settings/
+.project
+.classpath
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+testsupport/src/test/resources/testdb.log
+testsupport/src/test/resources/testdb.lck
+testsupport/src/test/resources/testdb.script
+testsupport/src/test/resources/testdb.properties
