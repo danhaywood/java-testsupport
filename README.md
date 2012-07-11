@@ -87,6 +87,8 @@ Note that this class has dependencies on a number of other libraries:
 -   org.hamcrest:hamcrest-core:1.3
 -   org.picocontainer:picocontainer:2.14.1
 
+For further discussion, see [this blog post](http://danhaywood.com/2012/07/11/mockito-like-automocking-and-optional-autowiring-in-jmock/).
+
 DbUnitRule
 ----------
 
