@@ -1,16 +1,12 @@
 java-testsupport
 ================
 
-A collection of test support classes and utilities for Java.  Each has their own test case to show how they can be used
+A collection of test support classes and utilities for Java.
 
 ValueContractTestAbstract
 -------------------------
 
-Use to easily unit test value types (`equals()` and `hashCode()`)
-
-- create a subclass
-- override two methods to provide instances that are equal to each other, and different from each other
-- that's it!
+Use to easily unit test value types, namely the `equals()` and `hashCode()` methods.  All the [usual rules](http://www.angelikalanger.com/Articles/JavaSolutions/SecretsOfEquals/Equals.html) are tested.
 
 For example:
 
