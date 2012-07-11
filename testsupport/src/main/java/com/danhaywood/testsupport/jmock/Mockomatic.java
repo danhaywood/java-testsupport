@@ -25,64 +25,97 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
 WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
  */
-package org.jmock.auto.internal;
+package com.danhaywood.testsupport.jmock;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.AssertionFailedError;
+
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.States;
 import org.jmock.auto.Auto;
 import org.jmock.auto.Mock;
 
-public class Mockomatic {
-    private final Mockery mockery;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Allowing;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Checking;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.ExpectationsOn;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Ignoring;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Never;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.One;
 
-    public Mockomatic(final Mockery mockery) {
-        this.mockery = mockery;
-    }
+class Mockomatic {
+    private final JUnitRuleMockery2 context;
 
-    public List<Object> fillIn(final Object object) {
-        return fillIn(object, AllDeclaredFields.in(object.getClass()));
+    public Mockomatic(final JUnitRuleMockery2 context) {
+        this.context = context;
     }
 
     public List<Object> fillIn(final Object object, final List<Field> knownFields) {
     	List<Object> mocks = new ArrayList<Object>();
         for (final Field field : knownFields) {
-            if (field.isAnnotationPresent(Mock.class)) {
-                autoMock(object, field, mocks);
-            } else if (field.isAnnotationPresent(Auto.class)) {
-                autoInstantiate(object, field);
-            }
+            autoMockIfAnnotated(object, field, mocks); 
+            autoInstantiateIfAnnotated(object, field);
         }
         return mocks;
     }
 
-    private void autoMock(final Object object, final Field field, List<Object> mocks) {
-        Object mock = mockery.mock(field.getType(), field.getName());
+	private void autoMockIfAnnotated(final Object object,
+			final Field field, List<Object> mocks) {
+		if (!field.isAnnotationPresent(Mock.class)) {
+			return;
+		} 
+		final Object mock = context.mock(field.getType(), field.getName());
 		setAutoField(field, object, mock, "auto-mock field " + field.getName());
+		if(field.isAnnotationPresent(Ignoring.class)) {
+			context.ignoring(mock);
+		}
+		if(field.isAnnotationPresent(Allowing.class)) {
+			context.allowing(mock);
+		}
+		if(field.isAnnotationPresent(Never.class)) {
+			context.never(mock);
+		}
+		if(field.isAnnotationPresent(One.class)) {
+			context.one(mock);
+		}
+		if(field.isAnnotationPresent(Checking.class)) {
+			checking(field, mock);
+		}
 		mocks.add(mock);
-    }
+	}
 
-    private void autoInstantiate(final Object object, final Field field) {
-        final Class<?> type = field.getType();
-        if (type == States.class) {
-            autoInstantiateStates(field, object);
-        } else if (type == Sequence.class) {
-            autoInstantiateSequence(field, object);
-        } else {
-            throw new IllegalStateException("cannot auto-instantiate field of type " + type.getName());
-        }
-    }
+	private <T> void checking(final Field field, final T mock) {
+		Checking checking = field.getAnnotation(Checking.class);
+		@SuppressWarnings("unchecked")
+		Class<? extends ExpectationsOn<T>> expectationsOnClass = (Class<? extends ExpectationsOn<T>>) checking.value();
+		context.checking(mock, expectationsOnClass);
+	}
+
+    private void autoInstantiateIfAnnotated(final Object object,
+			final Field field) {
+		if (!field.isAnnotationPresent(Auto.class)) {
+			return;
+		} 
+		final Class<?> type = field.getType();
+		if (type == States.class) {
+		    autoInstantiateStates(field, object);
+		} else if (type == Sequence.class) {
+		    autoInstantiateSequence(field, object);
+		} else {
+		    throw new IllegalStateException("cannot auto-instantiate field of type " + type.getName());
+		}
+	}
 
     private void autoInstantiateStates(final Field field, final Object object) {
-        setAutoField(field, object, mockery.states(field.getName()), "auto-instantiate States field " + field.getName());
+        setAutoField(field, object, context.states(field.getName()), "auto-instantiate States field " + field.getName());
     }
 
     private void autoInstantiateSequence(final Field field, final Object object) {
-        setAutoField(field, object, mockery.sequence(field.getName()), "auto-instantiate Sequence field " + field.getName());
+        setAutoField(field, object, context.sequence(field.getName()), "auto-instantiate Sequence field " + field.getName());
     }
 
     private void setAutoField(final Field field, final Object object, final Object value, final String description) {

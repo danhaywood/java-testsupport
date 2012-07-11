@@ -50,7 +50,7 @@ For example:
 JUnitRuleMockeryTest
 --------------------
 
-A combination of a JMock `Mockery` with a JUnit rule, providing support for Mockito-like `@Mock` annotation, along with optional auto-wiring support.  The `@Mock` support has been backported from JMock 2.6 (not released as of this writing).
+A combination of a JMock `Mockery` with a JUnit rule, providing support for Mockito-like `@Mock` annotation, along with optional auto-wiring support of the class under test (identified by a new `@ClassUnderTest` annotation).  Additionally, expectations can be set on the mock using `@Ignoring`, `@Allowing`, `@Never`, `@One` or using the general-purpose `@Checking(Expectations.class)` annotation.
 
 For example:
 
@@ -60,6 +60,7 @@ For example:
         public JUnitRuleMockery2 context = 
             JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
 
+        @One
         @Mock
         private Collaborator collaborator;
 
@@ -72,9 +73,10 @@ For example:
 	    }
     
         @Test
-        public void checkAutoWiring() {
+        public void autoWires_and_collaborates() {
             assertThat(collaborating, is(not(nullValue())));
     	    assertThat(collaborating.collaborator, is(not(nullValue())));
+            collaborating.collaborateWithCollaborator();
         }
     }
 
@@ -87,7 +89,9 @@ Note that this class has dependencies on a number of other libraries:
 -   org.hamcrest:hamcrest-core:1.3
 -   org.picocontainer:picocontainer:2.14.1
 
-For further discussion, see [this blog post](http://danhaywood.com/2012/07/11/mockito-like-automocking-and-optional-autowiring-in-jmock/).
+Note that the `@Mock` support has been backported from JMock 2.6 (not released as of this writing).
+
+For further discussion on some of these features, see [this blog post](http://danhaywood.com/2012/07/11/mockito-like-automocking-and-optional-autowiring-in-jmock/).
 
 DbUnitRule
 ----------

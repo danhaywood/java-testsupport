@@ -15,24 +15,8 @@ public class JMockActionsTest_returnEach {
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
 
-    public interface Collaborator {
-        public int readValue();
-    }
-
-    public static class ClassUnderTest {
-        private final Collaborator collaborator;
-
-        private ClassUnderTest(final Collaborator collaborator) {
-            this.collaborator = collaborator;
-        }
-
-        public String prependAndRead(String prepend) {
-            return prepend + " " + collaborator.readValue();
-        }
-    }
-
     @Mock
-    private Collaborator collaborator;
+    private CollaboratorForReturnEach collaborator;
 
     @Test
     public void poke() {
@@ -42,8 +26,26 @@ public class JMockActionsTest_returnEach {
                 will(JMockActions.returnEach(1,2,3));
             }
         });
-        assertThat(new ClassUnderTest(collaborator).prependAndRead("foo"), is("foo 1"));
-        assertThat(new ClassUnderTest(collaborator).prependAndRead("bar"), is("bar 2"));
-        assertThat(new ClassUnderTest(collaborator).prependAndRead("baz"), is("baz 3"));
+        assertThat(new ClassUnderTestForReturnEach(collaborator).prependAndRead("foo"), is("foo 1"));
+        assertThat(new ClassUnderTestForReturnEach(collaborator).prependAndRead("bar"), is("bar 2"));
+        assertThat(new ClassUnderTestForReturnEach(collaborator).prependAndRead("baz"), is("baz 3"));
     }
+    
+    public interface CollaboratorForReturnEach {
+        public int readValue();
+    }
+
+    public static class ClassUnderTestForReturnEach {
+        private final CollaboratorForReturnEach collaborator;
+
+        private ClassUnderTestForReturnEach(final CollaboratorForReturnEach collaborator) {
+            this.collaborator = collaborator;
+        }
+
+        public String prependAndRead(String prepend) {
+            return prepend + " " + collaborator.readValue();
+        }
+    }
+
+
 }

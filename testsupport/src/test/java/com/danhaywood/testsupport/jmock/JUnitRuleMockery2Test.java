@@ -13,22 +13,6 @@ public class JUnitRuleMockery2Test {
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
 
-    public static interface Collaborator {
-        public void doOtherStuff();
-    }
-
-    public static class ClassUnderTest {
-        private final Collaborator collaborator;
-
-        private ClassUnderTest(final Collaborator collaborator) {
-            this.collaborator = collaborator;
-        }
-
-        public void doStuff() {
-            collaborator.doOtherStuff();
-        }
-    }
-
     @Mock
     private Collaborator collaborator;
 
@@ -39,6 +23,6 @@ public class JUnitRuleMockery2Test {
                 one(collaborator).doOtherStuff();
             }
         });
-        new ClassUnderTest(collaborator).doStuff();
+        new Collaborating(collaborator).collaborateWithCollaborator();
     }
 }

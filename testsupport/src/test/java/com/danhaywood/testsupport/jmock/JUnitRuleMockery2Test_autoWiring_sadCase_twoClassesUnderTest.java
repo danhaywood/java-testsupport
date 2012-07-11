@@ -1,19 +1,14 @@
 package com.danhaywood.testsupport.jmock;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.jmock.auto.Mock;
-import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.ClassUnderTest;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Mode;
 
-public class JUnitRuleMockery2Test_autoWiring_happyCase {
+public class JUnitRuleMockery2Test_autoWiring_sadCase_twoClassesUnderTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
@@ -24,15 +19,13 @@ public class JUnitRuleMockery2Test_autoWiring_happyCase {
     @ClassUnderTest
 	private Collaborating collaborating;
 
-    @Before
-	public void setUp() throws Exception {
-    	collaborating = (Collaborating) context.getClassUnderTest();
-	}
-    
-    @Test
-    public void wiring() {
-    	assertThat(collaborating.collaborator, is(not(nullValue())));
-    }
+    @ClassUnderTest
+	private Collaborating anotherCollaborating;
 
+    @Ignore("This isn't actually possible to test, because the test is actually thrown by the rule, which is further up the callstack than the test method")
+    @Test(expected=AssertionError.class)
+    public void cannotFindClassUnderTest() {
+    	context.getClassUnderTest();
+    }
 
 }

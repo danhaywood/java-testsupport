@@ -6,12 +6,16 @@ import static org.junit.Assert.fail;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import junit.framework.AssertionFailedError;
+
 import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.auto.Mock;
 import org.jmock.auto.internal.AllDeclaredFields;
-import org.jmock.auto.internal.Mockomatic;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.rules.MethodRule;
@@ -39,7 +43,6 @@ import org.picocontainer.DefaultPicoContainer;
  */
 public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
 
-	
     /**
      * Factory method.
      */
@@ -52,9 +55,57 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
     }
 
     
+    /**
+     * Annotate the field that references the class under test;
+     * is automatically instantiated and autowired by this class, 
+     * accessible to the test using {@link JUnitRuleMockery2#getClassUnderTest()}.
+     */
     @Retention(RUNTIME)
     @Target(FIELD)
 	public static @interface ClassUnderTest {}
+
+    /**
+     * Annotate fields annotated with {@link Mock}, to indicate that they should be set up
+     * with an {@link Expectations#ignoring(Object)} expectation.
+     */
+    @Retention(RUNTIME)
+    @Target(FIELD)
+	public static @interface Ignoring {}
+
+    /**
+     * Annotate fields annotated with {@link Mock}, to indicate that they should be set up
+     * with an {@link Expectations#allowing(Object)} expectation.
+     */
+    @Retention(RUNTIME)
+    @Target(FIELD)
+	public static @interface Allowing {}
+
+    /**
+     * Annotate fields annotated with {@link Mock}, to indicate that they should be set up
+     * with an {@link Expectations#never(Object)} expectation.
+     */
+    @Retention(RUNTIME)
+    @Target(FIELD)
+	public static @interface Never {}
+
+    /**
+     * Annotate fields annotated with {@link Mock}, to indicate that they should be set up
+     * with an {@link Expectations#one(Object)} expectation.
+     */
+    @Retention(RUNTIME)
+    @Target(FIELD)
+	public static @interface One {}
+
+
+    /**
+     * Annotate fields annotated with {@link Mock}, to indicate that they should be set up
+     * to check the specified {@link ExpectationsOn expectation}.
+     */
+    @Retention(RUNTIME)
+    @Target(FIELD)
+	public static @interface Checking {
+    	Class<? extends ExpectationsOn> value() default ExpectationsOn.class;
+    }
 
     public static enum Mode {
         INTERFACES_ONLY, INTERFACES_AND_CLASSES;
@@ -128,6 +179,7 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
     	}
     	return container.getComponent(cutType);
     }
+
     
     /**
      * Ignoring any interaction with the mock; an allowing/ignoring mock will be
@@ -175,6 +227,41 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
             ignoring(mock);
         }
     }
+
     
+    /**
+     * Require one interaction
+     * @return 
+     */
+	public Object one(final Object mock) {
+        checking(new Expectations() {
+            {
+                one(mock);
+            }
+        });
+        return mock;
+	}
+
+    public static class ExpectationsOn<T> extends Expectations {
+    	public ExpectationsOn(Object mock) {
+    		this.mockObj = (T) mock;
+    	}
+    	private T mockObj;
+    	public T mock() {
+    		return mockObj;
+    	}
+    }
+    
+    public <T> T checking(T mock, Class<? extends ExpectationsOn<T>> expectationsClass) {
+		try {
+			Constructor<? extends ExpectationsOn<T>> constructor = expectationsClass.getConstructor(Object.class);
+			ExpectationsOn<T> expectations = constructor.newInstance(mock);
+			checking(expectations);
+			return mock;
+		} catch (Exception e) {
+			throw new AssertionFailedError("Unable to instantiate expectations class '" + expectationsClass.getName() + "'");
+		}
+	}
+
     
 }

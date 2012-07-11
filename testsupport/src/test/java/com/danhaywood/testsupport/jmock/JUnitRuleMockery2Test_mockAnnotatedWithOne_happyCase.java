@@ -1,10 +1,5 @@
 package com.danhaywood.testsupport.jmock;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.jmock.auto.Mock;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,12 +7,14 @@ import org.junit.Test;
 
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.ClassUnderTest;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Mode;
+import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.One;
 
-public class JUnitRuleMockery2Test_autoWiring_happyCase {
+public class JUnitRuleMockery2Test_mockAnnotatedWithOne_happyCase {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
 
+    @One
     @Mock
     private Collaborator collaborator;
 
@@ -30,8 +27,8 @@ public class JUnitRuleMockery2Test_autoWiring_happyCase {
 	}
     
     @Test
-    public void wiring() {
-    	assertThat(collaborating.collaborator, is(not(nullValue())));
+    public void invocationOnCollaboratorIsIgnored() {
+    	collaborating.collaborateWithCollaborator();
     }
 
 

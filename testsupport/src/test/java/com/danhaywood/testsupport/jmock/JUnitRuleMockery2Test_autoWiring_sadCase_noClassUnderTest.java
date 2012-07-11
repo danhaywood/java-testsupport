@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Mode;
 
-public class JUnitRuleMockery2Test_autoWiring_noClassUnderTest {
+public class JUnitRuleMockery2Test_autoWiring_sadCase_noClassUnderTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
@@ -22,25 +22,5 @@ public class JUnitRuleMockery2Test_autoWiring_noClassUnderTest {
     public void cannotFindClassUnderTest() {
     	context.getClassUnderTest();
     }
-
-    
-    ////////////////////////
-
-    public static interface Collaborator {
-        public void doOtherStuff();
-    }
-
-    public static class Collaborating {
-        private final Collaborator collaborator;
-
-        public Collaborating(final Collaborator collaborator) {
-            this.collaborator = collaborator;
-        }
-
-        public void doStuff() {
-            collaborator.doOtherStuff();
-        }
-    }
-
 
 }
