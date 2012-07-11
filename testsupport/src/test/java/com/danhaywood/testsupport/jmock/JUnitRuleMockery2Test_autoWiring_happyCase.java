@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.ClassUnderTest;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Mode;
 
-public class AutoWiringTest_happyCase {
+public class JUnitRuleMockery2Test_autoWiring_happyCase {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);

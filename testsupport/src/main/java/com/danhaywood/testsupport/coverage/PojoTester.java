@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 import junit.framework.AssertionFailedError;
 
-public final class BeanTester {
+public final class PojoTester {
 
 	public static interface FixtureDatumFactory<T> {
 		T getNext();
@@ -32,7 +32,7 @@ public final class BeanTester {
 	private final Map<Class<?>, FixtureDatumFactory<?>> fixtureDataByType = new HashMap<Class<?>, FixtureDatumFactory<?>>();
 	private final AtomicInteger counter = new AtomicInteger();
 
-	public BeanTester() {
+	public PojoTester() {
 		
 		FixtureDatumFactory<Boolean> booleanDatumFactory = new FixtureDatumFactory<Boolean>() {
 			public Boolean getNext() {
@@ -175,7 +175,7 @@ public final class BeanTester {
 		return counter;
 	}
 
-	public BeanTester withFixture(Class<?> c, final Object... fixtureData) {
+	public PojoTester withFixture(Class<?> c, final Object... fixtureData) {
 		if (Enum.class.isAssignableFrom(c)) {
 			throw new IllegalArgumentException("No need to provide fixture data for enums");
 		} 
@@ -200,7 +200,7 @@ public final class BeanTester {
 		return this;
 	}
 
-	public <T> BeanTester withFixture(Class<T> c, FixtureDatumFactory<T> factory) {
+	public <T> PojoTester withFixture(Class<T> c, FixtureDatumFactory<T> factory) {
 		fixtureDataByType.put(c, factory);
 		return this;
 	}

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class ConstantTesterTest {
+public class PrivateConstructorTesterTest {
 
 	public static class Constants {
 		private static boolean called;
@@ -15,13 +15,13 @@ public class ConstantTesterTest {
 		}
 		
 		public final static int FOO = 1;
-		public final static int bar = 1;
+		public final static int BAR = 1;
 	}
 	
 	@Test
 	public void invokeConstructor() throws Exception {
 		assertThat(Constants.called, is(false));
-		new ConstantTester(Constants.class).invokeConstructor();
+		new PrivateConstructorTester(Constants.class).exercise();
 		assertThat(Constants.called, is(true));
 	}
 	

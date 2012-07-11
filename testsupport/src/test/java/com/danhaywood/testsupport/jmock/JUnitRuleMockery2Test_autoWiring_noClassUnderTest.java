@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Mode;
 
-public class AutoWiringTest_noClassUnderTest {
+public class JUnitRuleMockery2Test_autoWiring_noClassUnderTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);

@@ -18,15 +18,247 @@ import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.danhaywood.testsupport.coverage.BeanTester.FilterSet;
+import com.danhaywood.testsupport.coverage.PojoTester.FilterSet;
 
-public class BeanTesterTest {
+public class PojoTesterTest {
 
-	private BeanTester beanTester;
-	private BeanSpy beanSpy;
-	private BeanSpyExt beanSpyWithOtherClass;
+	private PojoTester pojoTester;
+	private SpyingPojo spyingPojo;
+	private SpyingPojoExt spyingPojoExt;
 
-	public static class BeanSpy {
+	private final int NUMBER_OF_GETTERS_AND_SETTERS = 56;
+
+	@Before
+	public void setUp() throws Exception {
+		pojoTester = new PojoTester();
+		spyingPojo = new SpyingPojo();
+		spyingPojoExt = new SpyingPojoExt();
+	}
+
+	@Test
+	public void happyCase() {
+		pojoTester.testAllSetters(spyingPojo);
+		assertThat(spyingPojo.methodInvocations.size(), is(NUMBER_OF_GETTERS_AND_SETTERS)); // for each getter/setter
+	}
+
+	@Test
+	public void includingOnly() {
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("z", "longWrapper"));
+		assertThat(spyingPojo.methodInvocations.size(), is(4)); // for each getter/setter
+	}
+
+	@Test
+	public void excluding() {
+		pojoTester.exercise(spyingPojo, FilterSet.excluding("z", "longWrapper"));
+		assertThat(spyingPojo.methodInvocations.size(), is(NUMBER_OF_GETTERS_AND_SETTERS - 4)); // for each getter/setter
+	}
+
+	@Test
+	public void withOtherClass_fixtureDataSupplied() {
+		pojoTester.withFixture(SpyingPojoExt.OtherClass.class, new SpyingPojoExt.OtherClass(1), new SpyingPojoExt.OtherClass(2));
+		
+		pojoTester.exercise(spyingPojoExt, FilterSet.includingOnly("otherClass"));
+		assertThat(spyingPojoExt.methodInvocations.size(), is(2)); // for each getter/setter
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void withOtherClass_noFixtureDataSupplied_atAll() {
+		pojoTester.exercise(spyingPojoExt, FilterSet.includingOnly("otherClass"));
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void withOtherClass_noFixtureDataSupplied_missingValues() {
+		pojoTester.withFixture(SpyingPojoExt.OtherClass.class);
+		pojoTester.exercise(spyingPojoExt, FilterSet.includingOnly("otherClass"));
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void attemptToSupplyForEnum() {
+		pojoTester.withFixture(SpyingPojo.MyEnum.class, SpyingPojo.MyEnum.ONE, SpyingPojo.MyEnum.TWO);
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken1() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("z"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken2() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("b"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken3() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("s"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken4() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("i"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken5() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("l"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken6() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("f"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken7() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("d"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken8() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("c"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken9() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("boolWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken10() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("byteWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken11() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("shortWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken12() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("intWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken13() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("longWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken14() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("floatWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken15() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("doubleWrapper"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken16() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("charWrapper"));
+	}
+
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken17() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("string"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken18() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("pattern"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken19() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("file"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken20() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("bigDecimal"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken21() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("bigInteger"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken22() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("javaUtilDate"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken23() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("timestamp"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken24() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("list"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken25() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("iterable"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken26() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("collection"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken27() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("set"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken28() {
+		spyingPojo.broken = true;
+		pojoTester.exercise(spyingPojo, FilterSet.includingOnly("myEnum"));
+	}
+
+	@Test(expected=AssertionFailedError.class)
+	public void whenBroken_withOtherClass_fixtureDataSupplied() {
+		spyingPojoExt.broken = true;
+		pojoTester.withFixture(SpyingPojoExt.OtherClass.class, new SpyingPojoExt.OtherClass(1), new SpyingPojoExt.OtherClass(2));
+		
+		pojoTester.exercise(spyingPojoExt, FilterSet.includingOnly("otherClass"));
+	}
+
+
+
+	////////////////
+	
+	public static class SpyingPojo {
 
 		public enum MyEnum {
 			ONE,TWO,THREE
@@ -322,7 +554,7 @@ public class BeanTesterTest {
 		}
 	}
 
-	public static class BeanSpyExt extends BeanSpy {
+	public static class SpyingPojoExt extends SpyingPojo {
 
 		public static class OtherClass {
 			public OtherClass(int x) {
@@ -343,104 +575,5 @@ public class BeanTesterTest {
 			this.otherClass = otherClass;
 		}
 	}
-
-	private final int NUMBER_OF_GETTERS_AND_SETTERS = 56;
-
-	@Before
-	public void setUp() throws Exception {
-		beanTester = new BeanTester();
-		beanSpy = new BeanSpy();
-		beanSpyWithOtherClass = new BeanSpyExt();
-	}
-
-	@Test
-	public void happyCase() {
-		beanTester.testAllSetters(beanSpy);
-		assertThat(beanSpy.methodInvocations.size(), is(NUMBER_OF_GETTERS_AND_SETTERS)); // for each getter/setter
-	}
-
-	@Test
-	public void includingOnly() {
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("z", "longWrapper"));
-		assertThat(beanSpy.methodInvocations.size(), is(4)); // for each getter/setter
-	}
-
-	@Test
-	public void excluding() {
-		beanTester.exercise(beanSpy, FilterSet.excluding("z", "longWrapper"));
-		assertThat(beanSpy.methodInvocations.size(), is(NUMBER_OF_GETTERS_AND_SETTERS - 4)); // for each getter/setter
-	}
-
-	@Test
-	public void withOtherClass_fixtureDataSupplied() {
-		beanTester.withFixture(BeanSpyExt.OtherClass.class, new BeanSpyExt.OtherClass(1), new BeanSpyExt.OtherClass(2));
-		
-		beanTester.exercise(beanSpyWithOtherClass, FilterSet.includingOnly("otherClass"));
-		assertThat(beanSpyWithOtherClass.methodInvocations.size(), is(2)); // for each getter/setter
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void withOtherClass_noFixtureDataSupplied_atAll() {
-		beanTester.exercise(beanSpyWithOtherClass, FilterSet.includingOnly("otherClass"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void withOtherClass_noFixtureDataSupplied_missingValues() {
-		beanTester.exercise(beanSpyWithOtherClass, FilterSet.includingOnly("otherClass"));
-	}
-
-	@Test(expected=IllegalArgumentException.class)
-	public void attemptToSupplyForEnum() {
-		beanTester.withFixture(BeanSpy.MyEnum.class, BeanSpy.MyEnum.ONE, BeanSpy.MyEnum.TWO);
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken1() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("z"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken2() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("b"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken3() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("s"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken4() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("i"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken5() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("l"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken6() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("f"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken7() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("d"));
-	}
-
-	@Test(expected=AssertionFailedError.class)
-	public void whenBroken8() {
-		beanSpy.broken = true;
-		beanTester.exercise(beanSpy, FilterSet.includingOnly("c"));
-	}
-
 
 }

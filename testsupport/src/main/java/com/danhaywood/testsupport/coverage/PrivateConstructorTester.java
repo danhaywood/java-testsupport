@@ -2,15 +2,15 @@ package com.danhaywood.testsupport.coverage;
 
 import java.lang.reflect.Constructor;
 
-public final class ConstantTester {
+public final class PrivateConstructorTester {
 
     private Class<?> cls;
 
-	public ConstantTester(Class<?> cls) {
+	public PrivateConstructorTester(Class<?> cls) {
 		this.cls = cls;
 	}
 
-	public void invokeConstructor() throws Exception {
+	public void exercise() throws Exception {
         final Constructor<?> constructor = cls.getDeclaredConstructor();
         constructor.setAccessible(true);
         constructor.newInstance();
