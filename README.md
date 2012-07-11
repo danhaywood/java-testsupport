@@ -1,6 +1,3 @@
-java-testsupport
-================
-
 A collection of test support classes and utilities for Java.
 
 ValueContractTestAbstract
@@ -22,7 +19,7 @@ For example:
         }
     }
 
-For further discussion, see [this blog post](danhaywood.com/2010/11/04/contract-test-for-value-types/)
+For further discussion, see [this blog post](http://danhaywood.com/2010/11/04/contract-test-for-value-types/)
 
 PojoTester
 ----------
@@ -122,4 +119,4 @@ Note that this class has dependencies on a number of other libraries:
 -   org.slf4j:slf4j-api:1.6.6
 -   org.slf4j:slf4j-nop:1.6.6
 
-For further discussion, see [this blog post](danhaywood.com/2011/12/20/db-unit-testing-with-dbunit-json-hsqldb-and-junit-rules/).
+For further discussion, see [this blog post](http://danhaywood.com/2011/12/20/db-unit-testing-with-dbunit-json-hsqldb-and-junit-rules/).
