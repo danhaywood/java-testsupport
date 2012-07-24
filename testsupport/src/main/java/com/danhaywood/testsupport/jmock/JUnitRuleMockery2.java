@@ -173,11 +173,11 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
     }
 
 
-    public Object getClassUnderTest() {
+    public <T> T getClassUnderTest() {
     	if(cutType == null) {
     		throw new IllegalStateException("No field annotated @ClassUnderTest was found");
     	}
-    	return container.getComponent(cutType);
+    	return (T) container.getComponent(cutType);
     }
 
     
