@@ -37,7 +37,7 @@ public class PojoTesterTest {
 
 	@Test
 	public void happyCase() {
-		pojoTester.testAllSetters(spyingPojo);
+		pojoTester.exercise(spyingPojo);
 		assertThat(spyingPojo.methodInvocations.size(), is(NUMBER_OF_GETTERS_AND_SETTERS)); // for each getter/setter
 	}
 

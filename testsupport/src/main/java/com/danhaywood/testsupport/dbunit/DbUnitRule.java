@@ -17,8 +17,6 @@ import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.junit.rules.MethodRule;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
@@ -58,7 +56,6 @@ public class DbUnitRule implements MethodRule {
         }
     }
 
-    @Override
     public Statement apply(final Statement base, final FrameworkMethod method, final Object target) {
 
         return new Statement() {

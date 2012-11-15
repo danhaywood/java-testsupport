@@ -25,8 +25,25 @@ import junit.framework.AssertionFailedError;
 
 public final class PojoTester {
 
-	public static interface FixtureDatumFactory<T> {
-		T getNext();
+	public static class FixtureDatumFactory<T> {
+		private Class<T> type;
+		private T[] fixtureData;
+		private int index;
+		public FixtureDatumFactory() {
+		}
+		public FixtureDatumFactory(Class<T> type) {
+			this.type = type;
+		}
+		public FixtureDatumFactory(Class<T> type, T... fixtureData) {
+			this(type);
+			this.fixtureData = fixtureData;
+			index = fixtureData.length - 1;
+		}
+		public Class<T> getType() { return type; }
+		public T getNext() {
+			index = (index + 1) % fixtureData.length;
+			return fixtureData[index];
+		}
 	}
 
 	private final Map<Class<?>, FixtureDatumFactory<?>> fixtureDataByType = new HashMap<Class<?>, FixtureDatumFactory<?>>();
@@ -34,7 +51,7 @@ public final class PojoTester {
 
 	public PojoTester() {
 		
-		FixtureDatumFactory<Boolean> booleanDatumFactory = new FixtureDatumFactory<Boolean>() {
+		FixtureDatumFactory<Boolean> booleanDatumFactory = new FixtureDatumFactory<Boolean>(Boolean.class) {
 			public Boolean getNext() {
 				return counter.getAndIncrement() == 0;
 			}
@@ -43,7 +60,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Boolean.class, booleanDatumFactory);
 
 		
-		FixtureDatumFactory<Byte> byteDatumFactory = new FixtureDatumFactory<Byte>() {
+		FixtureDatumFactory<Byte> byteDatumFactory = new FixtureDatumFactory<Byte>(Byte.class) {
 			public Byte getNext() {
 				return (byte) counter.getAndIncrement();
 			}
@@ -52,7 +69,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Byte.class, byteDatumFactory);
 		
 		
-		FixtureDatumFactory<Short> shortDatumFactory = new FixtureDatumFactory<Short>() {
+		FixtureDatumFactory<Short> shortDatumFactory = new FixtureDatumFactory<Short>(Short.class) {
 			public Short getNext() {
 				return (short) counter.getAndIncrement();
 			}
@@ -61,7 +78,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Short.class, shortDatumFactory);
 		
 		
-		FixtureDatumFactory<Character> charDatumFactory = new FixtureDatumFactory<Character>() {
+		FixtureDatumFactory<Character> charDatumFactory = new FixtureDatumFactory<Character>(Character.class) {
 			public Character getNext() {
 				return (char) counter.getAndIncrement();
 			}
@@ -70,7 +87,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Character.class, charDatumFactory);
 		
 		
-		FixtureDatumFactory<Integer> intDatumFactory = new FixtureDatumFactory<Integer>() {
+		FixtureDatumFactory<Integer> intDatumFactory = new FixtureDatumFactory<Integer>(Integer.class) {
 			public Integer getNext() {
 				return counter.getAndIncrement();
 			}
@@ -79,7 +96,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Integer.class, intDatumFactory);
 		
 		
-		FixtureDatumFactory<Long> longDatumFactory = new FixtureDatumFactory<Long>() {
+		FixtureDatumFactory<Long> longDatumFactory = new FixtureDatumFactory<Long>(Long.class) {
 			public Long getNext() {
 				return (long) counter.getAndIncrement();
 			}
@@ -88,7 +105,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Long.class, longDatumFactory);
 		
 		
-		FixtureDatumFactory<Float> floatDatumFactory = new FixtureDatumFactory<Float>() {
+		FixtureDatumFactory<Float> floatDatumFactory = new FixtureDatumFactory<Float>(Float.class) {
 			public Float getNext() {
 				return new Float(counter.getAndIncrement());
 			}
@@ -97,7 +114,7 @@ public final class PojoTester {
 		fixtureDataByType.put(Float.class, floatDatumFactory);
 		
 		
-		FixtureDatumFactory<Double> doubleDatumFactory = new FixtureDatumFactory<Double>() {
+		FixtureDatumFactory<Double> doubleDatumFactory = new FixtureDatumFactory<Double>(Double.class) {
 			public Double getNext() {
 				return new Double(counter.getAndIncrement());
 			}
@@ -105,43 +122,43 @@ public final class PojoTester {
 		fixtureDataByType.put(double.class, doubleDatumFactory);
 		fixtureDataByType.put(Double.class, doubleDatumFactory);
 
-		fixtureDataByType.put(String.class, new FixtureDatumFactory<String>() {
+		fixtureDataByType.put(String.class, new FixtureDatumFactory<String>(String.class) {
 			public String getNext() {
 				return "string" + counter.getAndIncrement();
 			}
 		});
 
-		fixtureDataByType.put(BigDecimal.class, new FixtureDatumFactory<BigDecimal>() {
+		fixtureDataByType.put(BigDecimal.class, new FixtureDatumFactory<BigDecimal>(BigDecimal.class) {
 			public BigDecimal getNext() {
 				return new BigDecimal(counter.getAndIncrement());
 			}
 		});
 
-		fixtureDataByType.put(BigInteger.class, new FixtureDatumFactory<BigInteger>() {
+		fixtureDataByType.put(BigInteger.class, new FixtureDatumFactory<BigInteger>(BigInteger.class) {
 			public BigInteger getNext() {
 				return BigInteger.valueOf(counter.getAndIncrement());
 			}
 		});
 
-		fixtureDataByType.put(Date.class, new FixtureDatumFactory<Date>() {
+		fixtureDataByType.put(Date.class, new FixtureDatumFactory<Date>(Date.class) {
 			public Date getNext() {
 				return new Date(counter.getAndIncrement());
 			}
 		});
 		
-		fixtureDataByType.put(Timestamp.class, new FixtureDatumFactory<Timestamp>() {
+		fixtureDataByType.put(Timestamp.class, new FixtureDatumFactory<Timestamp>(Timestamp.class) {
 			public Timestamp getNext() {
 				return new Timestamp(counter.getAndIncrement());
 			}
 		});
 		
-		fixtureDataByType.put(Pattern.class, new FixtureDatumFactory<Pattern>() {
+		fixtureDataByType.put(Pattern.class, new FixtureDatumFactory<Pattern>(Pattern.class) {
 			public Pattern getNext() {
 				return Pattern.compile("p" + counter.getAndIncrement());
 			}
 		});
 		
-		fixtureDataByType.put(File.class, new FixtureDatumFactory<File>() {
+		fixtureDataByType.put(File.class, new FixtureDatumFactory<File>(File.class) {
 			public File getNext() {
 				return new File("file" + counter.getAndIncrement());
 			}
@@ -175,37 +192,22 @@ public final class PojoTester {
 		return counter;
 	}
 
-	public PojoTester withFixture(Class<?> c, final Object... fixtureData) {
+	public <T> PojoTester withFixture(Class<T> c, final T... fixtureData) {
 		if (Enum.class.isAssignableFrom(c)) {
 			throw new IllegalArgumentException("No need to provide fixture data for enums");
 		} 
 		if (fixtureData == null || fixtureData.length == 0) {
 			throw new IllegalArgumentException("Test data is mandatory");
 		}
-		for (Object o : fixtureData) {
-			if (!c.isAssignableFrom(o.getClass())) {
-				throw new IllegalArgumentException("Different classes: "
-						+ o.getClass().getName() + " is not a kind of "
-						+ c.getName());
-			}
-		}
-		fixtureDataByType.put(c, new FixtureDatumFactory<Object>() {
-			private int index = fixtureData.length - 1;
+		return withFixture(new FixtureDatumFactory<T>(c, fixtureData));
+	}
 
-			public Object getNext() {
-				index = (index + 1) % fixtureData.length;
-				return fixtureData[index];
-			}
-		});
+	public <T> PojoTester withFixture(FixtureDatumFactory<T> factory) {
+		fixtureDataByType.put(factory.getType(), factory);
 		return this;
 	}
 
-	public <T> PojoTester withFixture(Class<T> c, FixtureDatumFactory<T> factory) {
-		fixtureDataByType.put(c, factory);
-		return this;
-	}
-
-	public void testAllSetters(Object bean) {
+	public void exercise(Object bean) {
 		exercise(bean, FilterSet.excluding());
 	}
 
@@ -292,7 +294,7 @@ public final class PojoTester {
 			// automatically populate for enums
 			if (Enum.class.isAssignableFrom(parameterType)) {
 				final Object[] testData = parameterType.getEnumConstants();
-				factory = new FixtureDatumFactory<Object>() {
+				factory = new FixtureDatumFactory<Object>(Object.class) {
 					private int index = testData.length - 1;
 					public Object getNext() {
 						index = (index + 1) % testData.length;
