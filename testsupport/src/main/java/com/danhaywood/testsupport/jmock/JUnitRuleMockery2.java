@@ -13,10 +13,12 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 
 import org.jmock.Expectations;
+import org.jmock.api.ThreadingPolicy;
 import org.jmock.auto.Mock;
 import org.jmock.auto.internal.Mockomatic;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.jmock.internal.AllDeclaredFields;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -53,6 +55,7 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
         if (mode == Mode.INTERFACES_AND_CLASSES) {
             jUnitRuleMockery2.setImposteriser(ClassImposteriser.INSTANCE);
         }
+        jUnitRuleMockery2.setThreadingPolicy(new Synchroniser());
         return jUnitRuleMockery2;
     }
 

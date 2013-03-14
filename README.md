@@ -69,7 +69,7 @@ For example:
 
         @Before
 	    public void setUp() throws Exception {
-    	    collaborating = (Collaborating) context.getClassUnderTest();
+    	    collaborating = context.getClassUnderTest();
 	    }
     
         @Test
@@ -82,14 +82,12 @@ For example:
 
 Note that this class has dependencies on a number of other libraries:
 
--   org.junit:junit:4.10
--   org.jmock:jmock:2.5.1
--   org.jmock:jmock-junit4:2.5.1
--   org.jmock:jmock-legacy:2.5.1
+-   org.junit:junit:4.11
+-   org.jmock:jmock:2.6.0
+-   org.jmock:jmock-junit4:2.6.0
+-   org.jmock:jmock-legacy:2.6.0
 -   org.hamcrest:hamcrest-core:1.3
 -   org.picocontainer:picocontainer:2.14.1
-
-Note that the `@Mock` support has been backported from JMock 2.6 (not released as of this writing).
 
 For further discussion on some of these features, see [this blog post](http://danhaywood.com/2012/07/11/mockito-like-automocking-and-optional-autowiring-in-jmock/).
 
