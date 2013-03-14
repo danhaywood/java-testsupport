@@ -13,15 +13,17 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.auto.Mock;
-import org.jmock.auto.internal.AllDeclaredFields;
+import org.jmock.auto.internal.Mockomatic;
 import org.jmock.integration.junit4.JUnit4Mockery;
+import org.jmock.internal.AllDeclaredFields;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.picocontainer.DefaultPicoContainer;
+
 
 /**
  * Use as a <tt>@Rule</tt>, meaning that the <tt>@RunWith(JMock.class)</tt> can
@@ -111,7 +113,7 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
         INTERFACES_ONLY, INTERFACES_AND_CLASSES;
     }
 
-	private final Mockomatic mockomatic = new Mockomatic(this);
+	private final MyMockomatic mockomatic = new MyMockomatic(this);
 	private final DefaultPicoContainer container = new DefaultPicoContainer();
 	private Class<?> cutType;
 
@@ -236,7 +238,7 @@ public class JUnitRuleMockery2 extends JUnit4Mockery implements MethodRule {
 	public Object one(final Object mock) {
         checking(new Expectations() {
             {
-                one(mock);
+                oneOf(mock);
             }
         });
         return mock;

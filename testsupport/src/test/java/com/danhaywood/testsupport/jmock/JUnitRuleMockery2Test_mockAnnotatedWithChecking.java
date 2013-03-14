@@ -22,7 +22,7 @@ public class JUnitRuleMockery2Test_mockAnnotatedWithChecking {
 			super(mock);
 		}
 	{
-    	one(mock()).doOtherStuff();
+    	oneOf(mock()).doOtherStuff();
     }}
 
     @Checking(ExpectCall.class)

@@ -1,11 +1,10 @@
 package com.danhaywood.testsupport.jmock;
 
-import junit.framework.AssertionFailedError;
-
 import org.jmock.auto.Mock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.ClassUnderTest;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Mode;
@@ -14,8 +13,12 @@ import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Never;
 public class JUnitRuleMockery2Test_mockAnnotatedWithNever_sadCase {
 
     @Rule
+    public ExpectedException exp = ExpectedException.none();
+    
+    @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
 
+    @SuppressWarnings("unused")
     @Never
     @Mock
     private Collaborator collaborator;
@@ -25,12 +28,13 @@ public class JUnitRuleMockery2Test_mockAnnotatedWithNever_sadCase {
 
     @Before
 	public void setUp() throws Exception {
-    	collaborating = (Collaborating) context.getClassUnderTest();
+    	collaborating = context.getClassUnderTest();
 	}
-    
-    @Test(expected=java.lang.AssertionError.class)
+
+    @Test
     public void invocationOnCollaboratorIsIgnored() {
-    	collaborating.collaborateWithCollaborator();
+        exp.handleAssertionErrors().expect(AssertionError.class);
+        collaborating.collaborateWithCollaborator();
     }
 
 }

@@ -23,7 +23,7 @@ public class JUnitRuleMockery2Test_mockAnnotatedWithIgnoring {
 
     @Before
 	public void setUp() throws Exception {
-    	collaborating = (Collaborating) context.getClassUnderTest();
+    	collaborating = context.getClassUnderTest();
 	}
     
     @Test

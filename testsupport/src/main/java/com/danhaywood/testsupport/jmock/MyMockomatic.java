@@ -47,10 +47,10 @@ import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Ignoring;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.Never;
 import com.danhaywood.testsupport.jmock.JUnitRuleMockery2.One;
 
-class Mockomatic {
+class MyMockomatic {
     private final JUnitRuleMockery2 context;
 
-    public Mockomatic(final JUnitRuleMockery2 context) {
+    public MyMockomatic(final JUnitRuleMockery2 context) {
         this.context = context;
     }
 
