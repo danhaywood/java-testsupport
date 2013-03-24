@@ -13,6 +13,44 @@
 		should be added as a dependency with scope=test only
 	</description>
 
+    <properties>
+        <compileSource>1.6</compileSource>
+        <compileTarget>1.6</compileTarget>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.1</version>
+                    <configuration>
+                        <showDeprecation>false</showDeprecation>
+                        <showWarnings>false</showWarnings>
+                        <source>${compileSource}</source>
+                        <target>${compileTarget}</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
 	<dependencies>
 	       <!-- required if using JUnitRuleMockery2, DbUnitRule -->
            <dependency>
@@ -103,7 +141,7 @@
            <dependency>
                <groupId>org.hsqldb</groupId>
                <artifactId>hsqldb</artifactId>
-               <version>2.2.8</version>
+               <version>2.2.9</version>
                <scope>test</scope>
                <optional>true</optional>
            </dependency>
