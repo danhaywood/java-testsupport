@@ -30,7 +30,7 @@ public class PojoTesterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		pojoTester = new PojoTester();
+		pojoTester = PojoTester.strict();
 		spyingPojo = new SpyingPojo();
 		spyingPojoExt = new SpyingPojoExt();
 	}

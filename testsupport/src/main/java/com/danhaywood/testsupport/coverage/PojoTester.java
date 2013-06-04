@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -46,12 +48,27 @@ public final class PojoTester {
 		}
 	}
 
+   public static PojoTester strict() {
+        return new PojoTester(Mode.STRICT);
+   }
+   public static PojoTester relaxed() {
+       return new PojoTester(Mode.RELAXED);
+   }
+
 	private final Map<Class<?>, FixtureDatumFactory<?>> fixtureDataByType = new HashMap<Class<?>, FixtureDatumFactory<?>>();
 	private final AtomicInteger counter = new AtomicInteger();
 
-	public PojoTester() {
+	private enum Mode {
+	    STRICT,
+	    RELAXED
+	}
+	
+	private Mode mode;
+	
+	private PojoTester(Mode mode) {
 		
-		FixtureDatumFactory<Boolean> booleanDatumFactory = new FixtureDatumFactory<Boolean>(Boolean.class) {
+		this.mode = mode;
+        FixtureDatumFactory<Boolean> booleanDatumFactory = new FixtureDatumFactory<Boolean>(Boolean.class) {
 			public Boolean getNext() {
 				return counter.getAndIncrement() == 0;
 			}
@@ -185,6 +202,15 @@ public final class PojoTester {
 				list.add("element" + counter.getAndIncrement());
 				return list;
 			}
+		});
+		fixtureDataByType.put(SortedSet.class, new FixtureDatumFactory<SortedSet<?>>() {
+		    public SortedSet<?> getNext() {
+		        final SortedSet<String> list = new TreeSet<String>();
+		        list.add("element" + counter.getAndIncrement());
+		        list.add("element" + counter.getAndIncrement());
+		        list.add("element" + counter.getAndIncrement());
+		        return list;
+		    }
 		});
 	}
 
@@ -348,6 +374,15 @@ public final class PojoTester {
 			// finally store this getter to be tested against the next property
 			earlierGetters.add(getterMethod);
 
+		} catch (NoSuchMethodException e) {
+		    if(mode == Mode.RELAXED) {
+		        // ignore
+		        return; 
+		    }
+            final TestException error = new TestException(property + ": "
+                    + e.getMessage());
+            error.initCause(e);
+            throw error;
 		} catch (Exception e) {
 			final TestException error = new TestException(property + ": "
 					+ e.getMessage());
