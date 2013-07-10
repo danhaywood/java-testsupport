@@ -1,126 +1,244 @@
-A collection of test support classes and utilities for Java.
+java-testsupport
+================
 
-ValueContractTestAbstract
--------------------------
+A collection of unit testing utilities.
 
-Use to easily unit test value types, namely the `equals()` and `hashCode()` methods.  All the [usual rules](http://www.angelikalanger.com/Articles/JavaSolutions/SecretsOfEquals/Equals.html) are tested.
+## JMock Extensions
 
-For example:
+An extension to [JMock](http://jmock.org), supporting autowiring of mocks, was originally developed here, but has now moved into [Apache Isis](http://isis.apache.org) (in the `org.apache.isis.core:isis-core-unittestsupport` module).
 
-    public class ValueTypeContractTestAbstract_BigIntegerTest
-            extends ValueTypeContractTestAbstract<BigInteger> {
-        @Override
-        protected List<BigInteger> getObjectsWithSameValue() {
-            return Arrays.asList(new BigInteger("1"), new BigInteger("1"));
-        }
-        @Override
-        protected List<BigInteger> getObjectsWithDifferentValue() {
-            return Arrays.asList(new BigInteger("2"));
-        }
+See [this blog post](http://danhaywood.com/2012/07/11/mockito-like-automocking-and-optional-autowiring-in-jmock/) for the original discussion on the features; see the [Isis documentation](http://isis.apache.org/core/unittestsupport.html) for the current documentation.
+
+## Code Coverage
+
+The objective of these utilities is to take some of the automate the testing of 'trivial' code which would otherwise be tedious to test.  The point is not so much that we expect the tests to fail, but to be able to increase the code coverage figures.  Thus, any figure less than 100% represents real business logic that has not been tested.
+
+You could also think of these tests as contract tests, enforcing the (usually implied) contract of what it means for a class to be a pojo, or a `Util` class, or a value type.
+
+### PojoTester
+
+Exercises getters and setters of a pojo, this utility exercises them automatically.  All primitive, strings, dates and java.math values are automatically exercised.  The `FixtureDatumFactory` interface allows representative instances of other types to be provided.
+
+For example, the following exercises the `AgreementRole` class (which in addition to the built-ins has a properties of type `Agreement`, `Party` and `AgreementRoleType`): 
+
+    @Mock
+    protected DomainObjectContainer mockContainer;
+
+    @Test
+    public void test() {
+        PojoTester.relaxed()
+			.withFixture(dates())
+            .withFixture(DomainObjectContainer.class, mockContainer)
+            .withFixture(FixtureDatumFactoriesForAnyPojo.pojos(
+                              AgreementRoleType.class))
+            .withFixture(FixtureDatumFactoriesForAnyPojo.pojos(
+                              Agreement.class, AgreementForTesting.class))
+            .withFixture(FixtureDatumFactoriesForAnyPojo.pojos(
+                              Party.class, PartyForTesting.class))
+            .exercise(new AgreementRole());
     }
 
-For further discussion, see [this blog post](http://danhaywood.com/2010/11/04/contract-test-for-value-types/)
+	private static FixtureDatumFactory<LocalDate> dates() {
+		return new FixtureDatumFactory<LocalDate>(LocalDate.class, new LocalDate(2012, 7, 19), new LocalDate(2012, 7, 20), new LocalDate(2012, 8, 19), new LocalDate(2013, 7, 19));
+	}
 
-PojoTester
-----------
+### PrivateConstructorTester
 
-Use to exercise all the getters and setters of a pojo. All the main value types in the JDK are supported (int, String, java.util.Date etc), as well as enums; extensible to support any other value type.
-
-For example:
-
-    new PojoTester().exercise(new Customer());
-
-PrivateConstructorTester
-------------------------
-
-Use to instantiate classes that have a hidden constructor, (to increase code coverage).
-
-Typically this is used for classes holding a bunch of constants:
-
-    public final class Constants {
-        private Constants() {}
-        public final static FOO = 1;
-        public final static BAR = 2;
-    }
+This utility simply instantiates any classes (such as `Util` classes) that have a private constructor.
 
 For example:
 
-    new PrivateConstructorTester(Constants.class).exercise();
+	@Test
+	public void invokeConstructor() throws Exception {
+		new PrivateConstructorTester(Constants.class).exercise();
+	}
 
-JUnitRuleMockeryTest
---------------------
+where:
 
-A combination of a JMock `Mockery` with a JUnit rule, providing support for Mockito-like `@Mock` annotation, along with optional auto-wiring support of the class under test (identified by a new `@ClassUnderTest` annotation).  Additionally, expectations can be set on the mock using `@Ignoring`, `@Allowing`, `@Never`, `@One` or using the general-purpose `@Checking(Expectations.class)` annotation.
+	public static class Constants {
+		private Constants() {
+			// this is where we want some coverage!
+		}
+		
+		public final static int FOO = 1;
+		public final static int BAR = 1;
+	}
+	
 
-For example:
+### ValueTypeContractTestAbstract
 
-    public class JUnitRuleMockery2Test_autoWiring {
+A utility to check the contract for value types was originally developed here, but has now moved into [Apache Isis](http://isis.apache.org) (in the `org.apache.isis.core:isis-core-unittestsupport` module).
 
-        @Rule
-        public JUnitRuleMockery2 context = 
-            JUnitRuleMockery2.createFor(Mode.INTERFACES_AND_CLASSES);
+See [this blog post](http://danhaywood.com/2010/11/04/contract-test-for-value-types/) for the original discussion on the features; see the [Isis documentation](http://isis.apache.org/core/unittestsupport.html) for the current documentation.  (As of isis-core-1.3.0-SNAPSHOT and later, this utility also tests value types that are `Comparable`).
 
-        @One
-        @Mock
-        private Collaborator collaborator;
 
-        @ClassUnderTest
-        private Collaborating collaborating;
+## DBUnitRule
 
-        @Before
-	    public void setUp() throws Exception {
-    	    collaborating = context.getClassUnderTest();
-	    }
-    
-        @Test
-        public void autoWires_and_collaborates() {
-            assertThat(collaborating, is(not(nullValue())));
-    	    assertThat(collaborating.collaborator, is(not(nullValue())));
-            collaborating.collaborateWithCollaborator();
-        }
-    }
+The `DbUnitRule` bootstraps an instance of [HsqlDB](http://hsqldb.org/) for each test and uses [DbUnit](http://www.dbunit.org/) to load data and assert on changes, using JSON to hold the datasets.  See [this blog post](http://danhaywood.com/2011/12/20/db-unit-testing-with-dbunit-json-hsqldb-and-junit-rules/) for further discussion.
 
-Note that this class has dependencies on a number of other libraries:
+> DBUnit is licensed under [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html), which is [incompatible](http://www.apache.org/legal/resolved.html#category-x) with a pure [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0.html) library.  For this reason the dbunit dependency is marked as <tt>&lt;optional>true&lt;/optional></tt>.  If you wish to use this feature, make sure you include the dbUnit dependency directly.
 
--   org.junit:junit:4.11
--   org.jmock:jmock:2.6.0
--   org.jmock:jmock-junit4:2.6.0
--   org.jmock:jmock-legacy:2.6.0
--   org.hamcrest:hamcrest-core:1.3
--   org.picocontainer:picocontainer:2.14.1
-
-For further discussion on some of these features, see [this blog post](http://danhaywood.com/2012/07/11/mockito-like-automocking-and-optional-autowiring-in-jmock/).
-
-DbUnitRule
-----------
-
-Easily test database code using a JUnit rule that integrates with DbUnit a JSON dataset.
-
-For example:
+The following example shows a possible use:
 
     public class DbUnitRuleTest {
-
-	    @Rule
-        public DbUnitRule dbUnit = new DbUnitRule(
-            DbUnitRuleTest.class,
-			jdbcDriver.class, "jdbc:hsqldb:file:src/test/resources/testdb", "SA", "");
-
-	    @Ddl("customer.ddl")
-	    @JsonData("customer.json")
-	    @Test
-	    public void update_lastName() throws Exception { ... }
+    
+    	@Rule
+    	public DbUnitRule dbUnit = 
+            new DbUnitRule(DbUnitRuleTest.class, jdbcDriver.class,
+                           "jdbc:hsqldb:file:src/test/resources/testdb",
+    			           "SA", "");
+    
+    	@Ddl("customer.ddl")
+    	@JsonData("customer.json")
+    	@Test
+    	public void update_lastName_verifyUsingDataSets() throws Exception {
+    
+    		// when
+    		Statement statement = dbUnit.getConnection().createStatement();
+    		statement.executeUpdate(
+                "update customer set last_name='Bloggs' where id=2");
+    
+    		// then
+    		ITable actualTable = 
+                 dbUnit.createQueryTable("customer",
+    				                     "select * from customer order by id");
+    		ITable expectedTable =
+                 dbUnit.jsonDataSet("customer-updated.json").getTable("customer");
+    
+    		Assertion.assertEquals(expectedTable, actualTable);
+    	}
     }
 
-where `customer.ddl` provides the schema, and `customer.json` is the initial data set to populate the table with
+where `customer.ddl` is:
 
-Note that this class has dependencies on a number of other libraries:
+    drop table customer if exists;
+    create table customer (
+        id         int         not null primary key
+       ,first_name varchar(30) not null
+       ,initial    varchar(1)  null
+       ,last_name  varchar(30) not null
+    )
 
--   org.junit:junit:4.10
--   org.dbunit:dbunit:2.4.8
--   com.google.guava:guava:12.0.1
--   org.codehaus.jackson:jackson-core-asl:1.9.8
--   org.codehaus.jackson:jackson-mapper-asl:1.9.8
--   org.slf4j:slf4j-api:1.6.6
--   org.slf4j:slf4j-nop:1.6.6
+and `customer.json` is:
 
-For further discussion, see [this blog post](http://danhaywood.com/2011/12/20/db-unit-testing-with-dbunit-json-hsqldb-and-junit-rules/).
+    {
+      "customer": [
+	    {
+	      "id": 1, "first_name": "John", "initial": "K", "last_name": "Smith"
+	    },
+	    {
+	      "id": 2, "first_name": "Mary", "last_name": "Jones"
+	    }
+	  ]
+    }
+
+and `customer-updated.json` is:
+
+    {
+      "customer": [
+	    {
+	      "id": 1, "first_name": "John", "initial": "K", "last_name": "Smith"
+	    }, {
+	      "id": 2, "first_name": "Mary", "last_name": "Bloggs"
+	    }
+      ]
+    }
+
+
+
+## Hamcrest Matchers
+
+The library provides a Hamcrest matcher to assert on the contents of object graphs.  This idea was originally discussed in [this blog post](http://danhaywood.com/2009/12/14/asserting-on-object-graphs-using-hamcrest-and-mvel/)
+
+For example:
+
+    @Test
+    public void customer_address_city_name() throws Exception {
+        assertThat("London", navigatedFrom(customer, "address.city.name"));
+    }
+
+The matcher also supports collections.  Behind the scenes it uses the [MVEL](http://mvel.codehaus.org/) expression language.
+
+## Legal Stuff
+
+### License
+
+    Copyright 2013 Dan Haywood
+
+    Licensed under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+### Dependencies
+
+    <dependencies>
+        <dependency>
+            <!-- Common Public License - v 1.0 -->
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+        </dependency>
+
+        <dependency>
+            <!-- ASL v2.0 -->
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
+            <version>2.1.6.Final</version>
+        </dependency>
+    
+        <dependency>
+            <!-- GNU Lesser General Public License, Version 2.1 -->
+            <groupId>org.dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <version>2.4.9</version>
+            <!-- 
+            marked as optional due to the license; include explicitly
+            -->
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <!-- ASL v2.0 -->
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
+
+        <dependency>
+            <!-- ASL v2.0 -->
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.9.12</version>
+        </dependency>
+
+        <dependency>
+            <!-- ASL v2.0 -->
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.12</version>
+        </dependency>
+
+        <dependency>
+            <!-- ASL v2.0 -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <!-- ASL v2.0 -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+    </dependencies>

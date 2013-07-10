@@ -13,7 +13,7 @@ logs/
 *.war
 *.ear
 
-testsupport/src/test/resources/testdb.log
-testsupport/src/test/resources/testdb.lck
-testsupport/src/test/resources/testdb.script
-testsupport/src/test/resources/testdb.properties
+src/test/resources/testdb.log
+src/test/resources/testdb.lck
+src/test/resources/testdb.script
+src/test/resources/testdb.properties
