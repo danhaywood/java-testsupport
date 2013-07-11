@@ -1,6 +1,8 @@
 java-testsupport
 ================
 
+[![Build Status](https://travis-ci.org/danhaywood/java-testsupport.png?branch=master)](https://travis-ci.org/danhaywood/java-testsupport)
+
 A collection of unit testing utilities.
 
 ## JMock Extensions
